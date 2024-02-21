@@ -6,32 +6,12 @@ namespace SGS.Controllers
 {
     [ApiController]
     [Route("currencies")]
-    public class CurrenciesController : ControllerBase
+    public class CurrenciesController(IMemoryCache memoryCache) : ControllerBase
     {
-        private readonly IMemoryCache _cache;
-
-        public CurrenciesController(IMemoryCache memoryCache)
-        {
-            _cache = memoryCache;
-        }
-
         [HttpGet]
         public async Task<IActionResult> GetCurrencies(int pageSize = 10, int pageNumber = 1)
         {
-            CurrencyRate currencyRate;
-            try
-            {
-                currencyRate = await CurrencyDataFetcher.GetCurrencies(_cache);
-            }
-            catch (HttpRequestException)
-            {
-                return new StatusCodeResult(503);
-            }
-            catch (Exception)
-            {
-                return new StatusCodeResult(500);
-            }
-
+            CurrencyRate currencyRate = await CurrencyDataFetcher.GetCurrencies(memoryCache);
 
             int startIndex = (pageNumber - 1) * pageSize;
             int count = Math.Min(pageSize, currencyRate.Valute.Count - startIndex);

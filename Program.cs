@@ -1,3 +1,5 @@
+using SGS.Middleware;
+
 namespace SGS
 {
     public class Program
@@ -18,7 +20,7 @@ namespace SGS
 
             app.UseSwagger();
             app.UseSwaggerUI();
-
+            app.UseMiddleware<ExceptionHandlerMiddleware>();
             app.UseHttpsRedirection();
 
             app.UseAuthorization();

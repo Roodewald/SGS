@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 using SGS.Models;
 using System.Text.Json;
 
@@ -10,7 +9,6 @@ namespace SGS
         public static async Task<CurrencyRate> GetCurrencies(IMemoryCache cache)
         {
             var httpClient = new HttpClient();
-
             if (!cache.TryGetValue("CurrencyData", out CurrencyRate cachedData))
             {
                 Console.WriteLine("Кэш пустой, получаю запрос");
