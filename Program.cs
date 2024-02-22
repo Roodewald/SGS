@@ -10,7 +10,7 @@ namespace SGS
 
 			// Add services to the container.
 
-		    builder.Services.AddHttpClient();
+			builder.Services.AddHttpClient();
 			builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
