@@ -4,32 +4,33 @@ using System.Text.Json;
 
 namespace SGS
 {
-    public static class CurrencyDataFetcher
-    {
-        public static async Task<CurrencyRate> GetCurrencies(IMemoryCache cache)
-        {
-            var httpClient = new HttpClient();
-            if (!cache.TryGetValue("CurrencyData", out CurrencyRate cachedData))
-            {
-                Console.WriteLine("Кэш пустой, получаю запрос");
-                var response = await httpClient.GetAsync("https://www.cbr-xml-daily.ru/daily_json.js");
+	public class CurrencyDataFetcher(IHttpClientFactory clientFactory, IMemoryCache cache)
+	{
+		public async Task<CurrencyRate> GetCurrencies()
+		{
+			if (!cache.TryGetValue("CurrencyData", out CurrencyRate cachedData))
+			{
+				Console.WriteLine("Кэш пустой, получаю запрос");
+				var client = clientFactory.CreateClient();
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new HttpRequestException($"Ошибка при считывании: {response.StatusCode}");
-                }
+				var response = await client.GetAsync("https://www.cbr-xml-daily.ru/daily_json.js");
 
-                var responseData = await response.Content.ReadAsStringAsync();
+				if (!response.IsSuccessStatusCode)
+				{
+					throw new HttpRequestException($"Ошибка при считывании: {response.StatusCode}");
+				}
 
-                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                CurrencyRate currencyData = JsonSerializer.Deserialize<CurrencyRate>(responseData, options);
+				var responseData = await response.Content.ReadAsStringAsync();
 
-                cache.Set("CurrencyData", currencyData, TimeSpan.FromMinutes(1));
+				var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+				CurrencyRate currencyData = JsonSerializer.Deserialize<CurrencyRate>(responseData, options);
 
-                return currencyData;
-            }
+				cache.Set("CurrencyData", currencyData, TimeSpan.FromMinutes(1));
 
-            return cachedData;
-        }
-    }
+				return currencyData;
+			}
+
+			return cachedData;
+		}
+	}
 }
